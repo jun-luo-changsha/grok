@@ -14,7 +14,7 @@ import (
 )
 
 var (
-	valid    = regexp.MustCompile(`^\w+([-.]\w+)*(:([-.\w]+)(:(string|float|int))?)?$`)
+	valid    = regexp.MustCompile(`^\w+([-.]\w+)*(:([-.\w]+)(:(string|float|int|long|double|boolean))?)?$`)
 	normal   = regexp.MustCompile(`%{([\w-.]+(?::[\w-.]+(?::[\w-.]+)?)?)}`)
 	symbolic = regexp.MustCompile(`\W`)
 )
@@ -256,8 +256,14 @@ func (g *Grok) ParseTyped(pattern string, text string) (map[string]interface{}, 
 					switch segmentType {
 					case "int":
 						captures[name], _ = strconv.Atoi(match[i])
+					case "long":
+						captures[name], _ = strconv.ParseInt(match[i], 10, 64)
 					case "float":
 						captures[name], _ = strconv.ParseFloat(match[i], 64)
+					case "double":
+						captures[name], _ = strconv.ParseFloat(match[i], 64)
+					case "boolean":
+						captures[name], _ = strconv.ParseBool(match[i])
 					default:
 						return nil, fmt.Errorf("ERROR the value %s cannot be converted to %s", match[i], segmentType)
 					}
